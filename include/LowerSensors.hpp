@@ -1,5 +1,5 @@
-#ifndef INCLUDE_SENSORHANDLER_HPP_
-#define INCLUDE_SENSORHANDLER_HPP_
+#ifndef INCLUDE_LOWERHANDLER_HPP_
+#define INCLUDE_LOWERHANDLER_HPP_
 
 #include "AbstractSensorDataProvider.hpp"
 #include <GpioWrapper.hpp>
@@ -9,9 +9,9 @@
 #include <stdint.h>
 
 template<uint8_t DSPin>
-class SensorHandler : public AbstractSensorDataProvider {
+class LowerSensors : public AbstractSensorDataProvider {
 public:
-    SensorHandler(Gpio &aFloatLev1, Gpio &aFloatLev2, Gpio &aFloatLev3, Gpio &aPumpCurrentSensorPin):
+    LowerSensors(Gpio &aFloatLev1, Gpio &aFloatLev2, Gpio &aFloatLev3, Gpio &aPumpCurrentSensorPin):
         floatLev1{aFloatLev1},
         floatLev2{aFloatLev2},
         floatLev3{aFloatLev3},
@@ -46,9 +46,16 @@ public:
 
             const int adcData = currentSensor.analogRead();
             const uint16_t current = static_cast<uint16_t>(static_cast<float>(adcData) * static_cast<float>(5 / 1024));
+            if (current >= 500) {
+                data.deviceFlags |= static_cast<uint8_t>(LowerFlags::LowerPumpOverCurrentFlag);
+            } else if (current <= 50) {
+                data.deviceFlags |= static_cast<uint8_t>(LowerFlags::LowerPumpLowCurrentFlag);
+            } else {
+                data.deviceFlags &= ~static_cast<uint8_t>(LowerFlags::LowerPumpOverCurrentFlag);
+                data.deviceFlags &= ~static_cast<uint8_t>(LowerFlags::LowerPumpLowCurrentFlag);
+            }
             
             data.waterLevelPerc = getWaterLevel();
-
             data.waterPH10 = 0;
             data.waterPPM = 0;
 
@@ -80,15 +87,9 @@ private:
     {
         uint8_t procent{0};
 
-        const bool water1State = floatLev1.digitalRead(); // Самый низкий датчик, он есть всегда
-        const bool water2State = floatLev2.digitalRead(); // Датчик повыше
-        const bool water3State = floatLev3.digitalRead(); // Высокий датчик ваще жесть
-
-        if (inversion) {
-            water1State = !water1State;
-            water2State = !water2State;
-            water3State = !water3State;
-        }
+        const bool water1State = inversion ? !floatLev1.digitalRead() : floatLev1.digitalRead(); // Самый низкий датчик, он есть всегда
+        const bool water2State = inversion ? !floatLev2.digitalRead() : floatLev1.digitalRead(); // Датчик повыше
+        const bool water3State = inversion ? !floatLev3.digitalRead() : floatLev1.digitalRead(); // Высокий датчик ваще жесть
 
         static constexpr uint8_t kLevelFive3Procent{80};
 	    static constexpr uint8_t kLevelFive2Procent{60};
@@ -96,13 +97,13 @@ private:
 	    static constexpr uint8_t kLevelFive0Procent{20};
 
         if (water3State && water2State && water1State) {
-            procent = 100;
+            procent = kLevelFive3Procent;
         } else if (water2State && water1State) {
-            procent = 75;
+            procent = kLevelFive2Procent;
         } else if (water1State) {
-            procent = 50;
+            procent = kLevelFive1Procent;
         } else {
-            procent = 25;
+            procent = kLevelFive0Procent;
         }
 
         return procent;

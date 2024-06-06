@@ -36,4 +36,11 @@ struct LowerTelemetry {
 	uint8_t deviceFlags;
 } __attribute__((packed));
 
+struct UpperTelemetry {
+	uint8_t lampState;
+	uint8_t swingLevelState;
+	uint8_t damState;
+	uint8_t deviceFlags;
+} __attribute__((packed));
+
 #endif

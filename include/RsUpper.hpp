@@ -1,10 +1,9 @@
-#ifndef RSTANK_HPP_
-#define RSTANK_HPP_
+#ifndef RSUPPER_HPP_
+#define RSUPPER_HPP_
 
 #include "AbstractSensorDataProvider.hpp"
 #include "GpioWrapper.hpp"
 #include "TimeWrapper.hpp"
-#include "SensorHandler.hpp"
 #include <Lib/RsHandler.hpp>
 #include <Types.hpp>
 
@@ -12,14 +11,14 @@
 #include <stdint.h>
 
 template<class Interface, typename Crc, size_t ParserSize>
-class RsTank : public RS::RsHandler<Interface, Crc, ParserSize> {
+class RsUpper : public RS::RsHandler<Interface, Crc, ParserSize> {
 	using BaseType = RS::RsHandler<Interface, Crc, ParserSize>;
 
 public:
-	RsTank(Interface &aInterface, uint8_t aNodeUID, Gpio &aPumpGpio, AbstractSensorDataProvider *aSensorHandler):
+	RsUpper(Interface &aInterface, uint8_t aNodeUID, Gpio &aDamGpio, AbstractSensorDataProvider *aSensorHandler):
 		BaseType{aInterface, aNodeUID},
-		pump{aPumpGpio},
-		pumpState{false},
+		dam{aDamGpio},
+		damState{false},
 		sensorHandler{aSensorHandler}
 	{
 
@@ -28,10 +27,10 @@ public:
 	uint8_t handleCommand(uint8_t aCommand, uint8_t aArgument) override
 	{
 		switch (aCommand) {
-		case static_cast<uint8_t>(Commands::SetPumpState): {
+		case static_cast<uint8_t>(Commands::SetDamState): {
 			const bool newState = aArgument >= 1;
-			pumpState = newState;
-			pump.setState(newState);
+			damState = newState;
+			dam.setState(newState);
 			return 1;
 			} break;
 		
@@ -59,9 +58,8 @@ public:
 			case static_cast<uint8_t>(Requests::RequestTelemetry): {
 				// Если длина запроса не совпадает - вернется ACK с кодом 0
 
-				LowerTelemetry telem = sensorHandler->getSensorData();
-				telem.pumpState = pumpState;
-
+				UpperTelemetry telem;
+				telem.damState = damState;
 
 				return BaseType::sendAnswer(aTransmitUID, aRequest, aRequestedDataSize, &telem, sizeof(telem));
 			} break;
@@ -71,8 +69,8 @@ public:
 		}
 	}
 private:
-	Gpio &pump;
-	bool pumpState;
+	Gpio &dam;
+	bool damState;
 	AbstractSensorDataProvider *sensorHandler;
 };
 
