@@ -1,12 +1,20 @@
-#ifndef RSUPPER_HPP_
-#define RSUPPER_HPP_
+/*!
+@file
+@brief RS класс аппера
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 03.06.2024
+@version 1.0
+*/
 
-#include "AbstractSensorDataProvider.hpp"
+#ifndef INCLUDE_RSUPPER_HPP_
+#define INCLUDE_RSUPPER_HPP_
+
+#include "AbstractDataProvider.hpp"
 #include "GpioWrapper.hpp"
 #include "TimeWrapper.hpp"
-#include <Lib/RsHandler.hpp>
-#include <Types.hpp>
+#include "Types.hpp"
 
+#include <UtilitaryRS/RsHandler.hpp>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -15,10 +23,12 @@ class RsUpper : public RS::RsHandler<Interface, Crc, ParserSize> {
 	using BaseType = RS::RsHandler<Interface, Crc, ParserSize>;
 
 public:
-	RsUpper(Interface &aInterface, uint8_t aNodeUID, Gpio &aDamGpio, AbstractSensorDataProvider *aSensorHandler):
+	RsUpper(Interface &aInterface, uint8_t aNodeUID, Gpio &aDamGpio, Gpio &aLampPin, AbstractUpperDataProvider *aSensorHandler):
 		BaseType{aInterface, aNodeUID},
 		dam{aDamGpio},
 		damState{false},
+		lamp{aLampPin},
+		lampState{false},
 		sensorHandler{aSensorHandler}
 	{
 
@@ -26,17 +36,25 @@ public:
 
 	uint8_t handleCommand(uint8_t aCommand, uint8_t aArgument) override
 	{
-		switch (aCommand) {
-		case static_cast<uint8_t>(Commands::SetDamState): {
-			const bool newState = aArgument >= 1;
-			damState = newState;
-			dam.setState(newState);
-			return 1;
-			} break;
+		const auto command = static_cast<Commands>(aCommand);
+		const bool value = aArgument >= 1 ? true : false;
+
+		switch (command) {
+			case Commands::SetDamState:
+				damState = value;
+				dam.setState(value);
+				return 1;
+				break;
 		
-		default:
-			return 0;
-			break;
+			case Commands::SetLampState:
+				lampState = value;
+				lamp.setState(value);
+				return 1;
+				break;
+
+			default:
+				return 0;
+				break;
 		}
 	}
 
@@ -58,8 +76,9 @@ public:
 			case static_cast<uint8_t>(Requests::RequestTelemetry): {
 				// Если длина запроса не совпадает - вернется ACK с кодом 0
 
-				UpperTelemetry telem;
+				UpperTelemetry telem = sensorHandler->getSensorData();
 				telem.damState = damState;
+				telem.lampState = lampState;
 
 				return BaseType::sendAnswer(aTransmitUID, aRequest, aRequestedDataSize, &telem, sizeof(telem));
 			} break;
@@ -71,7 +90,11 @@ public:
 private:
 	Gpio &dam;
 	bool damState;
-	AbstractSensorDataProvider *sensorHandler;
+
+	Gpio &lamp;
+	bool lampState;
+
+	AbstractUpperDataProvider *sensorHandler;
 };
 
-#endif
+#endif // INCLUDE_RSUPPER_HPP_

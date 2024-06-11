@@ -1,9 +1,10 @@
-//-----------------------------------------------------------------------
-//  File        : GpioWrapper.cpp
-//  Created     : 23.10.2022
-//  Modified    : 10.12.2022
-//  Author      : V-Nezlo (vlladimirka@gmail.com)
-//  Description : ООП обертка для gpio
+/*!
+@file
+@brief ООП Обертка для GPIO
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 06.10.2022
+@version 1.0
+*/
 
 #include "GpioWrapper.hpp"
 

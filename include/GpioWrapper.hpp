@@ -1,12 +1,13 @@
-//-----------------------------------------------------------------------
-//  File        : GpioWrapper.hpp
-//  Created     : 6.10.2022
-//  Modified    : 23.10.2022
-//  Author      : V-Nezlo (vlladimirka@gmail.com)
-//  Description : ООП обертка для gpio
+/*!
+@file
+@brief ООП Обертка для GPIO
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 06.10.2022
+@version 1.0
+*/
 
-#ifndef GPIOWRAPPER
-#define GPIOWRAPPER
+#ifndef INCLUDE_GPIOWRAPPER_HPP_
+#define INCLUDE_GPIOWRAPPER_HPP_
 
 #include <Arduino.h>
 
@@ -31,4 +32,4 @@ private:
 	bool checkPwmPinStatus();
 };
 
-#endif
+#endif // INCLUDE_GPIOWRAPPER_HPP_

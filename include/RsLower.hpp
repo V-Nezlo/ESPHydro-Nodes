@@ -1,12 +1,20 @@
-#ifndef RSLOWER_HPP_
-#define RSLOWER_HPP_
+/*!
+@file
+@brief RS класс ловера
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 20.05.2024
+@version 1.0
+*/
 
-#include "AbstractSensorDataProvider.hpp"
+#ifndef INCLUDE_RSLOWER_HPP_
+#define INCLUDE_RSLOWER_HPP_
+
+#include "AbstractDataProvider.hpp"
 #include "GpioWrapper.hpp"
 #include "TimeWrapper.hpp"
-#include <Lib/RsHandler.hpp>
-#include <Types.hpp>
+#include "Types.hpp"
 
+#include <UtilitaryRS/RsHandler.hpp>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -15,7 +23,7 @@ class RsLower : public RS::RsHandler<Interface, Crc, ParserSize> {
 	using BaseType = RS::RsHandler<Interface, Crc, ParserSize>;
 
 public:
-	RsLower(Interface &aInterface, uint8_t aNodeUID, Gpio &aPumpGpio, AbstractSensorDataProvider *aSensorHandler):
+	RsLower(Interface &aInterface, uint8_t aNodeUID, Gpio &aPumpGpio, AbstractLowerDataProvider *aSensorHandler):
 		BaseType{aInterface, aNodeUID},
 		pump{aPumpGpio},
 		pumpState{false},
@@ -72,7 +80,7 @@ public:
 private:
 	Gpio &pump;
 	bool pumpState;
-	AbstractSensorDataProvider *sensorHandler;
+	AbstractLowerDataProvider *sensorHandler;
 };
 
-#endif
+#endif // INCLUDE_RSLOWER_HPP_

@@ -1,12 +1,13 @@
-//-----------------------------------------------------------------------
-//  File        : TimeWrapper.hpp
-//  Created     : 6.10.2022
-//  Modified    : 23.10.2022
-//  Author      : V-Nezlo (vlladimirka@gmail.com)
-//  Description : ООП обертка для времени
+/*!
+@file
+@brief ООП обертка для времени
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 23.10.2022
+@version 1.0
+*/
 
-#ifndef TIMEWRAPPER
-#define TIMEWRAPPER
+#ifndef INCLUDE_TIMEWRAPPER_HPP_
+#define INCLUDE_TIMEWRAPPER_HPP_
 
 #include <Arduino.h>
 
@@ -24,4 +25,4 @@ public:
 
 };
 
-#endif
+#endif // INCLUDE_TIMEWRAPPER_HPP_

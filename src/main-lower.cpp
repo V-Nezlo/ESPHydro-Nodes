@@ -1,10 +1,19 @@
-#include <Arduino.h>
-#include <SoftwareSerial.h>
+/*!
+@file
+@brief Ловер
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 11.05.2024
+@version 1.0
+*/
+
+#include "GpioWrapper.hpp"
 #include "LowerSensors.hpp"
 #include "SerialWrapper.hpp"
-#include "GpioWrapper.hpp"
 #include "RsLower.hpp"
-#include "Lib/Crc8.hpp"
+
+#include <Arduino.h>
+#include <SoftwareSerial.h>
+#include <UtilitaryRS/Crc8.hpp>
 
 Gpio latch(5, OUTPUT);
 SerialWrapper serial(115200, latch);
@@ -21,7 +30,7 @@ Gpio pumpCurrentSensor(4, INPUT);
 Gpio pumpPin(6, OUTPUT);
 
 LowerSensors<1> sensorHandler(waterLev1, waterLev2, waterLev3, pumpCurrentSensor);
-RsLower<SerialWrapper, Crc8, 128> device(serial, 1, pumpPin, &sensorHandler);
+RsLower<SerialWrapper, Crc8, 128> device(serial, DeviceType::Lower, pumpPin, &sensorHandler);
 
 uint32_t sensorLastUpdate;
 static constexpr uint32_t kSensorsUpdateTimeMs{500};

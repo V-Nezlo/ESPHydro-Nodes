@@ -1,10 +1,20 @@
-#ifndef SERIALWRAPPER_HPP
-#define SERIALWRAPPER_HPP
+/*!
+@file
+@brief Обертка для сериала
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 06.04.2024
+@version 1.0
+*/
 
+#ifndef INCLUDE_SERIALWRAPPER_HPP
+#define INCLUDE_SERIALWRAPPER_HPP
+
+#include "GpioWrapper.hpp"
+
+#include <Arduino.h>
 #include <string.h>
 #include <stdint.h>
-#include "Arduino.h"
-#include "GpioWrapper.hpp"
+
 
 class SerialWrapper {
 public:
@@ -39,4 +49,4 @@ private:
 	Gpio &latch;
 };
 
-#endif // SERIALWRAPPER_HPP
+#endif // INCLUDE_SERIALWRAPPER_HPP

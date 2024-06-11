@@ -1,15 +1,23 @@
+/*!
+@file
+@brief Обработчик сенсоров ловера
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 20.05.2024
+@version 1.0
+*/
+
 #ifndef INCLUDE_LOWERHANDLER_HPP_
 #define INCLUDE_LOWERHANDLER_HPP_
 
-#include "AbstractSensorDataProvider.hpp"
-#include <GpioWrapper.hpp>
-#include <TimeWrapper.hpp>
-#include <Types.hpp>
+#include "AbstractDataProvider.hpp"
+#include "GpioWrapper.hpp"
+#include "TimeWrapper.hpp"
+#include "Types.hpp"
 #include <microDS18B20.h>
 #include <stdint.h>
 
 template<uint8_t DSPin>
-class LowerSensors : public AbstractSensorDataProvider {
+class LowerSensors : public AbstractLowerDataProvider {
 public:
     LowerSensors(Gpio &aFloatLev1, Gpio &aFloatLev2, Gpio &aFloatLev3, Gpio &aPumpCurrentSensorPin):
         floatLev1{aFloatLev1},
@@ -64,7 +72,7 @@ public:
         }
     }
 
-    LowerTelemetry &getSensorData() override
+    LowerTelemetry getSensorData() override
     {
         return data;
     }
@@ -110,4 +118,4 @@ private:
     }
 };
 
-#endif
+#endif // INCLUDE_LOWERHANDLER_HPP_

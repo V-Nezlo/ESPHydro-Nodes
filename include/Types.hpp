@@ -1,7 +1,22 @@
+/*!
+@file
+@brief Типы
+@author V-Nezlo (vlladimirka@gmail.com)
+@date 04.05.2024
+@version 1.0
+*/
+
 #ifndef INCLUDE_TYPES_HPP_
 #define INCLUDE_TYPES_HPP_
 
 #include <stdint.h>
+
+enum DeviceType {
+	Master = 0,
+	Upper,
+	Lower,
+	AUX
+};
 
 enum LowerFlags : uint8_t {
 	LowerPumpOverCurrentFlag = 0x01,
@@ -10,6 +25,11 @@ enum LowerFlags : uint8_t {
 	LowerPHSensorErrorFlag = 0x08,
 	LowerPPMSensorErrorFlag = 0x10,
 	LowerPumpLowCurrentFlag = 0x20
+};
+
+enum UpperFlags : uint8_t {
+	UpperTopWaterLevelStuck = 0x01,
+	UpperPowerError = 0x02
 };
 
 enum class PumpState {
