@@ -14,12 +14,12 @@
 
 class AbstractLowerDataProvider {
 public:
-    virtual LowerTelemetry getSensorData() = 0;
+	virtual LowerTelemetry getSensorData() = 0;
 };
 
 class AbstractUpperDataProvider {
 public:
-    virtual UpperTelemetry getSensorData() = 0;
+	virtual UpperTelemetry getSensorData() = 0;
 };
 
 #endif

@@ -45,7 +45,7 @@ public:
 				dam.setState(value);
 				return 1;
 				break;
-		
+
 			case Commands::SetLampState:
 				lampState = value;
 				lamp.setState(value);

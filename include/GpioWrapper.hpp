@@ -28,7 +28,7 @@ public:
 	void analogWrite(int aValue);
 
 private:
-    int number;
+	int number;
 	bool checkPwmPinStatus();
 };
 

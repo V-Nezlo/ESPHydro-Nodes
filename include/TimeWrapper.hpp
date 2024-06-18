@@ -13,15 +13,15 @@
 
 class TimeWrapper {
 public:
-    static uint32_t milliseconds()
-    {
-        return millis();
-    }
+	static uint32_t milliseconds()
+	{
+		return millis();
+	}
 
-    static uint32_t seconds()
-    {
-        return millis() / 1000;
-    }
+	static uint32_t seconds()
+	{
+		return millis() / 1000;
+	}
 
 };
 

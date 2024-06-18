@@ -9,9 +9,9 @@
 #include "GpioWrapper.hpp"
 
 constexpr uint8_t Gpio::kPwmPins[];
-    
+
 Gpio::Gpio(int aNum, int aType):
-    number{aNum}
+	number{aNum}
 {
 	pinMode(number, aType);
 }

@@ -29,7 +29,6 @@ public:
 		pumpState{false},
 		sensorHandler{aSensorHandler}
 	{
-
 	}
 
 	uint8_t handleCommand(uint8_t aCommand, uint8_t aArgument) override
@@ -41,7 +40,7 @@ public:
 			pump.setState(newState);
 			return 1;
 			} break;
-		
+
 		default:
 			return 0;
 			break;

@@ -33,8 +33,8 @@ enum UpperFlags : uint8_t {
 };
 
 enum class PumpState {
-    PumpOn = 0,
-    PumpOff = 1,
+	PumpOn = 0,
+	PumpOff = 1,
 };
 
 enum class Requests {
