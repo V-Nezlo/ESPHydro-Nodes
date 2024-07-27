@@ -15,21 +15,16 @@
 #include <SoftwareSerial.h>
 #include <UtilitaryRS/Crc8.hpp>
 
-Gpio latch(5, OUTPUT);
+Gpio latch(2, OUTPUT);
 SerialWrapper serial(115200, latch);
 
-Gpio led1(A4, OUTPUT);
-Gpio led2(A2, OUTPUT);
-Gpio led3(A0, OUTPUT);
+Gpio waterLev1(5, INPUT);
+Gpio waterLev2(6, INPUT);
+Gpio waterLev3(7, INPUT);
 
-Gpio waterLev1(1, INPUT);
-Gpio waterLev2(2, INPUT);
-Gpio waterLev3(3, INPUT);
+Gpio pumpPin(3, OUTPUT);
 
-Gpio pumpCurrentSensor(4, INPUT);
-Gpio pumpPin(6, OUTPUT);
-
-LowerSensors<1> sensorHandler(waterLev1, waterLev2, waterLev3, pumpCurrentSensor);
+LowerSensors<1> sensorHandler(waterLev1, waterLev2, waterLev3);
 RsLower<SerialWrapper, Crc8, 128> device(serial, DeviceType::Lower, pumpPin, &sensorHandler);
 
 uint32_t sensorLastUpdate;
@@ -39,6 +34,7 @@ void setup()
 {
 	latch.reset();
 	serial.init();
+	sensorHandler.init();
 }
 
 void loop() 

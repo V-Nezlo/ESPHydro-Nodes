@@ -68,7 +68,6 @@ public:
 				LowerTelemetry telem = sensorHandler->getSensorData();
 				telem.pumpState = pumpState;
 
-
 				return BaseType::sendAnswer(aTransmitUID, aRequest, aRequestedDataSize, &telem, sizeof(telem));
 			} break;
 			default:

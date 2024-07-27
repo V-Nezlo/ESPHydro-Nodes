@@ -11,26 +11,34 @@
 
 #include "AbstractDataProvider.hpp"
 #include "GpioWrapper.hpp"
+#include "Options.hpp"
 #include "TimeWrapper.hpp"
 #include "Types.hpp"
+#include "Adafruit_INA219.h"
 #include <microDS18B20.h>
 #include <stdint.h>
 
 template<uint8_t DSPin>
 class LowerSensors : public AbstractLowerDataProvider {
 public:
-	LowerSensors(Gpio &aFloatLev1, Gpio &aFloatLev2, Gpio &aFloatLev3, Gpio &aPumpCurrentSensorPin):
+	LowerSensors(Gpio &aFloatLev1, Gpio &aFloatLev2, Gpio &aFloatLev3):
 		floatLev1{aFloatLev1},
 		floatLev2{aFloatLev2},
 		floatLev3{aFloatLev3},
 		inversion{false},
-		currentSensor{aPumpCurrentSensorPin},
+		curSensor{},
 
 		lastCheckTime{0},
 		updateTime{200},
 		tempSensor{}
 	{
 
+	}
+
+	void init()
+	{
+		curSensor.begin();
+		curSensor.setCalibration_16V_400mA();
 	}
 
 	void process()
@@ -52,11 +60,11 @@ public:
 				data.waterTemperature10 = 0;
 			}
 
-			const int adcData = currentSensor.analogRead();
-			const uint16_t current = static_cast<uint16_t>(static_cast<float>(adcData) * static_cast<float>(5 / 1024));
-			if (current >= 500) {
+			const float current = curSensor.getCurrent_mA();
+			
+			if (current >= Options::Lower::kMaxCurrentToOvercurrent_mA) {
 				data.deviceFlags |= static_cast<uint8_t>(LowerFlags::LowerPumpOverCurrentFlag);
-			} else if (current <= 50) {
+			} else if (current <= Options::Lower::kMinCurrentToNoLoad) {
 				data.deviceFlags |= static_cast<uint8_t>(LowerFlags::LowerPumpLowCurrentFlag);
 			} else {
 				data.deviceFlags &= ~static_cast<uint8_t>(LowerFlags::LowerPumpOverCurrentFlag);
@@ -83,7 +91,7 @@ private:
 	Gpio &floatLev3;
 	bool inversion;
 
-	Gpio &currentSensor;
+	Adafruit_INA219 curSensor;
 
 	uint32_t lastCheckTime;
 	const uint32_t updateTime;
