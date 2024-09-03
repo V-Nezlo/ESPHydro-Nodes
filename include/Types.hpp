@@ -50,7 +50,7 @@ enum class Commands {
 struct LowerTelemetry {
 	uint8_t pumpState;
 	uint8_t waterLevelPerc;
-	int8_t waterTemperature10;
+	int16_t waterTemperature10;
 	uint8_t waterPH10;
 	uint16_t waterPPM;
 	uint8_t deviceFlags;

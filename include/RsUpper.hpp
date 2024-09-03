@@ -14,7 +14,7 @@
 #include "TimeWrapper.hpp"
 #include "Types.hpp"
 
-#include <UtilitaryRS/RsHandler.hpp>
+#include "RsHandler.hpp"
 #include <stddef.h>
 #include <stdint.h>
 

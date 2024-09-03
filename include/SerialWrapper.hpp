@@ -39,7 +39,9 @@ public:
 	size_t write(const uint8_t *aData, size_t aLength)
 	{
 		latch.set();
+		delay(20);
 		auto len = Serial.write(aData, aLength);
+		delay(20);
 		latch.reset();
 		return len;
 	}

@@ -64,6 +64,11 @@ void Gpio::analogWrite(int aValue)
 	}
 }
 
+void Gpio::reconfigure(int aType)
+{
+	pinMode(number, aType);
+}
+
 bool Gpio::checkPwmPinStatus()
 {
 	for (auto pos : kPwmPins) {

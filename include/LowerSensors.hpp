@@ -39,6 +39,7 @@ public:
 	{
 		curSensor.begin();
 		curSensor.setCalibration_16V_400mA();
+		tempSensor.setResolution(12);
 	}
 
 	void process()

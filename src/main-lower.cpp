@@ -1,10 +1,11 @@
-/*!
-@file
-@brief Ловер
-@author V-Nezlo (vlladimirka@gmail.com)
-@date 11.05.2024
-@version 1.0
-*/
+// /*!
+// @file
+// @brief Ловер
+// @author V-Nezlo (vlladimirka@gmail.com)
+// @date 11.05.2024
+// @version 1.0
+// */
+
 
 #include "GpioWrapper.hpp"
 #include "LowerSensors.hpp"
@@ -12,8 +13,7 @@
 #include "RsLower.hpp"
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
-#include <UtilitaryRS/Crc8.hpp>
+#include <Crc8.hpp>
 
 Gpio latch(2, OUTPUT);
 SerialWrapper serial(115200, latch);
@@ -23,8 +23,10 @@ Gpio waterLev2(6, INPUT);
 Gpio waterLev3(7, INPUT);
 
 Gpio pumpPin(3, OUTPUT);
+Gpio led(13, OUTPUT);
+bool ledState = false;
 
-LowerSensors<1> sensorHandler(waterLev1, waterLev2, waterLev3);
+LowerSensors<4> sensorHandler(waterLev1, waterLev2, waterLev3);
 RsLower<SerialWrapper, Crc8, 128> device(serial, DeviceType::Lower, pumpPin, &sensorHandler);
 
 uint32_t sensorLastUpdate;
@@ -35,6 +37,10 @@ void setup()
 	latch.reset();
 	serial.init();
 	sensorHandler.init();
+	
+	led.set();
+	delay(500);
+	led.reset();
 }
 
 void loop() 
@@ -44,6 +50,9 @@ void loop()
 		uint8_t buffer[64];
 		serial.read(buffer, len);
 		device.update(buffer, len);
+
+		ledState = !ledState;
+		led.setState(ledState);
 	}
 
 	const auto currentTime = TimeWrapper::milliseconds();

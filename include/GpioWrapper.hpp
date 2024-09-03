@@ -26,6 +26,7 @@ public:
 	bool digitalRead();
 	int analogRead();
 	void analogWrite(int aValue);
+	void reconfigure(int aType);
 
 private:
 	int number;
