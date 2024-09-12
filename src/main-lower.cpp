@@ -6,7 +6,7 @@
 // @version 1.0
 // */
 
-
+#include "LowerFlagStorage.hpp"
 #include "GpioWrapper.hpp"
 #include "LowerSensors.hpp"
 #include "SerialWrapper.hpp"

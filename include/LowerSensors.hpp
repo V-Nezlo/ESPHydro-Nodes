@@ -9,6 +9,7 @@
 #ifndef INCLUDE_LOWERHANDLER_HPP_
 #define INCLUDE_LOWERHANDLER_HPP_
 
+#include "LowerFlagStorage.hpp"
 #include "AbstractDataProvider.hpp"
 #include "GpioWrapper.hpp"
 #include "Options.hpp"
@@ -67,7 +68,9 @@ public:
 			// Проверим что температурный сенсор отвечает
 			const bool tempReadResult = tempSensor.readTemp();
 
-			checkPump();
+			if (FlagStorage::instance().pumpState) {
+				checkPump();
+			}
 
 			// Запрос температуры и установка-сброс флагов ошибки
 			if (tempReadResult) {

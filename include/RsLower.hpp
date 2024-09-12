@@ -9,6 +9,7 @@
 #ifndef INCLUDE_RSLOWER_HPP_
 #define INCLUDE_RSLOWER_HPP_
 
+#include "LowerFlagStorage.hpp"
 #include "AbstractDataProvider.hpp"
 #include "GpioWrapper.hpp"
 #include "TimeWrapper.hpp"
@@ -42,6 +43,8 @@ public:
 				const bool newState = aArgument >= 1;
 				pumpState = newState;
 				pump.setState(newState);
+
+				FlagStorage::instance().pumpState = newState;
 				return 1;
 				};
 
