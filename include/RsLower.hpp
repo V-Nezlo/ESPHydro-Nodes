@@ -27,24 +27,31 @@ public:
 		BaseType{aInterface, aNodeUID},
 		pump{aPumpGpio},
 		pumpState{false},
-		sensorHandler{aSensorHandler}
+		sensorHandler{aSensorHandler},
+		calibrationTimeout{0},
+		calibrate{false}
 	{
 	}
 
 	uint8_t handleCommand(uint8_t aCommand, uint8_t aArgument) override
 	{
-		switch (aCommand) {
-		case static_cast<uint8_t>(Commands::SetPumpState): {
-			const bool newState = aArgument >= 1;
-			pumpState = newState;
-			pump.setState(newState);
-			return 1;
+		Commands command = static_cast<Commands>(aCommand);
+
+		switch (command) {
+			case Commands::SetPumpState: {
+				const bool newState = aArgument >= 1;
+				pumpState = newState;
+				pump.setState(newState);
+				return 1;
+				};
+
+			case Commands::CalibECSensor: {
+				return 1;
 			} break;
 
-		default:
-			return 0;
-			break;
-		}
+			default:
+				return 0;
+			}
 	}
 
 	void handleAck(uint8_t aTranceiverUID, uint8_t aReturnCode) override
@@ -79,6 +86,9 @@ private:
 	Gpio &pump;
 	bool pumpState;
 	AbstractLowerDataProvider *sensorHandler;
+
+	uint32_t calibrationTimeout;
+	bool calibrate;
 };
 
 #endif // INCLUDE_RSLOWER_HPP_

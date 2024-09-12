@@ -24,7 +24,8 @@ enum LowerFlags : uint8_t {
 	LowerTempSensorErrorFlag = 0x04,
 	LowerPHSensorErrorFlag = 0x08,
 	LowerPPMSensorErrorFlag = 0x10,
-	LowerPumpLowCurrentFlag = 0x20
+	LowerPumpLowCurrentFlag = 0x20,
+	Calibration             = 0x40
 };
 
 enum UpperFlags : uint8_t {
@@ -44,7 +45,8 @@ enum class Requests {
 enum class Commands {
 	SetPumpState = 1,
 	SetLampState = 2,
-	SetDamState = 3
+	SetDamState = 3,
+	CalibECSensor = 4
 };
 
 struct LowerTelemetry {
