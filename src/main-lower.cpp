@@ -33,7 +33,7 @@ bool ledState = false;
 LowerSensors<4> sensorHandler(waterLev1, waterLev2, waterLev3, EC_Sence, EC_Gnd, EC_Pow);
 RsLower<SerialWrapper, Crc8, 128> device(serial, DeviceType::Lower, pumpPin, &sensorHandler);
 
-uint32_t sensorLastUpdate;
+uint32_t sensorLastUpdate{0};
 static constexpr uint32_t kSensorsUpdateTimeMs{500};
 
 void setup() 
