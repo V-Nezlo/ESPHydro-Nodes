@@ -9,6 +9,7 @@
 #ifndef INCLUDE_LOWERHANDLER_HPP_
 #define INCLUDE_LOWERHANDLER_HPP_
 
+#include "PpmFilter.hpp"
 #include "LowerFlagStorage.hpp"
 #include "AbstractDataProvider.hpp"
 #include "GpioWrapper.hpp"
@@ -76,15 +77,25 @@ public:
 			if (tempReadResult) {
 				const float temp = tempSensor.getTemp();
 				data.waterTemperature10 = temp * 10;
-				data.waterPPM = getPPM(temp);
-				data.deviceFlags &= ~static_cast<uint8_t>(LowerFlags::LowerTempSensorErrorFlag);
+				const uint16_t ppm = getPPM(temp);
+
+				if (PpmFilter::isValid(ppm)) {
+					data.waterPPM = ppm;
+					data.deviceFlags &= ~LowerFlags::LowerPPMSensorErrorFlag;
+				} else {
+					data.waterPPM = 0;
+					data.deviceFlags |= LowerFlags::LowerPPMSensorErrorFlag;
+				}
+
+				data.deviceFlags &= ~LowerFlags::LowerTempSensorErrorFlag;
 			} else {
-				data.deviceFlags |= static_cast<uint8_t>(LowerFlags::LowerTempSensorErrorFlag);
+				data.deviceFlags |= LowerFlags::LowerTempSensorErrorFlag;
 				data.waterTemperature10 = 0;
 			}
 
 			data.waterLevelPerc = getWaterLevel();
-			data.waterPH10 = 0;
+			data.waterPH10 = getPH();
+			data.deviceFlags |= LowerFlags::PHSensorNotInstalled;
 
 			// Запрос измерения температуры для следующего чтения
 			tempSensor.requestTemp();
@@ -161,20 +172,22 @@ private:
 	uint16_t getPPM(float aCurrentTemp)
 	{
 		ecPow.set();
-		float vRaw = ecSence.analogRead();
-		vRaw = ecSence.analogRead();
+		ecSence.analogRead();
+		const float vRaw = ecSence.analogRead();
 		ecPow.reset();
 
-		float vDrop =  (kVin * vRaw) / 1024.f;
-		float rC = (vDrop * kPowResistorValue) / (kVin - vDrop);
-		rC = rC - kIntResistorValue;
-		float ec = 1000 / (rC * kCellConstantK);
+		const float vDrop =  (kVin * vRaw) / 1024.f;
+		const float rC = ((vDrop * kPowResistorValue) / (kVin - vDrop)) - kIntResistorValue;
+		const float ec = 1000 / (rC * kCellConstantK);
 
-		float ec25 = ec / (1 + kTemperatureCoef * (aCurrentTemp - 25.f));
-		uint16_t ppm = static_cast<uint16_t>(ec25 * kPPMconversion * 1000);
-		return ppm;
+		const float ec25 = ec / (1 + kTemperatureCoef * (aCurrentTemp - 25.f));
+		return static_cast<uint16_t>(PpmFilter::apply(static_cast<float>(ec25 * kPPMconversion * 1000)));
 	}
 
+	uint8_t getPH()
+	{
+		return 0;
+	}
 };
 
 #endif // INCLUDE_LOWERHANDLER_HPP_
