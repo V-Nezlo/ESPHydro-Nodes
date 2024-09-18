@@ -95,7 +95,6 @@ public:
 
 			data.waterLevelPerc = getWaterLevel();
 			data.waterPH10 = getPH();
-			data.deviceFlags |= LowerFlags::PHSensorNotInstalled;
 
 			// Запрос измерения температуры для следующего чтения
 			tempSensor.requestTemp();
@@ -186,7 +185,7 @@ private:
 
 	uint8_t getPH()
 	{
-		return 0;
+		return 0xFF;
 	}
 };
 
