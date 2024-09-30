@@ -94,7 +94,20 @@ public:
 			}
 
 			data.waterLevelPerc = getWaterLevel();
-			data.waterPH10 = getPH();
+			if (data.waterLevelPerc > Options::Lower::kMinWaterLevelForError) {
+				data.deviceFlags &= ~LowerFlags::LowerNoWaterFlag;
+			} else {
+				data.deviceFlags |= LowerFlags::LowerNoWaterFlag;
+			}
+
+			uint8_t ph10 = getPH();
+			if (data.waterPH10 != 0) {
+				data.waterPH10 = ph10;
+				data.deviceFlags &= ~LowerFlags::LowerPHSensorErrorFlag;
+			} else {
+				data.waterPH10 = 0;
+				data.deviceFlags |= LowerFlags::LowerPHSensorErrorFlag;
+			}
 
 			// Запрос измерения температуры для следующего чтения
 			tempSensor.requestTemp();
@@ -185,7 +198,7 @@ private:
 
 	uint8_t getPH()
 	{
-		return 0xFF;
+		return 0;
 	}
 };
 

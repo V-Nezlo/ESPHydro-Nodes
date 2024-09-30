@@ -43,6 +43,7 @@ void setup()
 	sensorHandler.init();
 
 	pumpPin.set();
+	delay(100);
 	sensorHandler.checkPump();
 	pumpPin.reset();
 	

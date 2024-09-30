@@ -20,12 +20,12 @@ enum DeviceType {
 
 enum LowerFlags : uint8_t {
 	LowerPumpOverCurrentFlag = 0x01,
-	LowerNoWaterFlag = 0x02,
+	LowerNoWaterFlag         = 0x02,
 	LowerTempSensorErrorFlag = 0x04,
-	LowerPHSensorErrorFlag = 0x08,
-	LowerPPMSensorErrorFlag = 0x10,
-	LowerPumpLowCurrentFlag = 0x20,
-	Calibration             = 0x40
+	LowerPHSensorErrorFlag   = 0x08,
+	LowerPPMSensorErrorFlag  = 0x10,
+	LowerPumpLowCurrentFlag  = 0x20,
+	Calibration              = 0x40
 };
 
 enum UpperFlags : uint8_t {
