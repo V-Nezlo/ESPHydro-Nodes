@@ -25,7 +25,7 @@ enum LowerFlags : uint8_t {
 	LowerPHSensorErrorFlag   = 0x08,
 	LowerPPMSensorErrorFlag  = 0x10,
 	LowerPumpLowCurrentFlag  = 0x20,
-	Calibration              = 0x40
+	LowerWaterLevelError     = 0x40
 };
 
 enum UpperFlags : uint8_t {

@@ -157,25 +157,36 @@ private:
 
 	uint8_t getWaterLevel()
 	{
-		uint8_t procent{0};
+		const bool water1State = inversion ? !floatLev1.digitalRead() : floatLev1.digitalRead();
+		const bool water2State = inversion ? !floatLev2.digitalRead() : floatLev2.digitalRead();
+		const bool water3State = inversion ? !floatLev3.digitalRead() : floatLev3.digitalRead();
 
-		const bool water1State = inversion ? !floatLev1.digitalRead() : floatLev1.digitalRead(); // Самый низкий датчик, он есть всегда
-		const bool water2State = inversion ? !floatLev2.digitalRead() : floatLev1.digitalRead(); // Датчик повыше
-		const bool water3State = inversion ? !floatLev3.digitalRead() : floatLev1.digitalRead(); // Высокий датчик ваще жесть
+		static constexpr uint8_t kLevel3Procent{80};
+		static constexpr uint8_t kLevel2Procent{60};
+		static constexpr uint8_t kLevel1Procent{40};
+		static constexpr uint8_t kLevel0Procent{0};
+		static constexpr uint8_t kFallbackProcent{20};
 
-		static constexpr uint8_t kLevelFive3Procent{80};
-		static constexpr uint8_t kLevelFive2Procent{60};
-		static constexpr uint8_t kLevelFive1Procent{40};
-		static constexpr uint8_t kLevelFive0Procent{20};
+		uint8_t procent = kLevel0Procent;
 
-		if (water3State && water2State && water1State) {
-			procent = kLevelFive3Procent;
-		} else if (water2State && water1State) {
-			procent = kLevelFive2Procent;
-		} else if (water1State) {
-			procent = kLevelFive1Procent;
+		if (water3State && !(water2State && water1State)) {
+			data.deviceFlags |= LowerWaterLevelError;
+			procent = kFallbackProcent;
+		} else if (water2State && !water1State) {
+			data.deviceFlags |= LowerWaterLevelError;
+			procent = kFallbackProcent;
 		} else {
-			procent = kLevelFive0Procent;
+			data.deviceFlags &= ~LowerWaterLevelError;
+
+			if (water3State && water2State && water1State) {
+				procent = kLevel3Procent;
+			} else if (water2State && water1State) {
+				procent = kLevel2Procent;
+			} else if (water1State) {
+				procent = kLevel1Procent;
+			} else {
+				procent = kLevel0Procent;
+			}
 		}
 
 		return procent;
@@ -189,8 +200,8 @@ private:
 		ecPow.reset();
 
 		const float vDrop =  (kVin * vRaw) / 1024.f;
-		const float rC = ((vDrop * kPowResistorValue) / (kVin - vDrop)) - kIntResistorValue;
-		const float ec = 1000 / (rC * kCellConstantK);
+		const float rC = ((vDrop * kPowResistorValue) / (kVin - vDrop) + 0.001f) - kIntResistorValue;
+		const float ec = 1000 / ((rC * kCellConstantK) + 0.001f);
 
 		const float ec25 = ec / (1 + kTemperatureCoef * (aCurrentTemp - 25.f));
 		return static_cast<uint16_t>(PpmFilter::apply(static_cast<float>(ec25 * kPPMconversion * 1000)));
