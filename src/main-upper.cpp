@@ -17,13 +17,13 @@
 Gpio latch(2, OUTPUT);
 SerialWrapper serial(115200, latch);
 
-Gpio acSensePin(4, INPUT);
-Gpio floatLevelPin(5, INPUT);
+Gpio acSensePin(A0, INPUT);
+Gpio floatLevelPin(A1, INPUT);
 
-Gpio damPin(6, OUTPUT);
-Gpio lampPin(7, OUTPUT);
+Gpio damPin(11, OUTPUT);
+Gpio lampPin(12, OUTPUT);
 
-Gpio led(13, OUTPUT);
+Gpio led(10, OUTPUT);
 bool ledState = false;
 
 UpperSensors sensorHandler(floatLevelPin, acSensePin, false);
@@ -44,6 +44,9 @@ void loop()
 	if (serial.bytesAvaillable()) {
 		size_t len = serial.bytesAvaillable();
 		uint8_t buffer[64];
+
+		len = min(sizeof(buffer), len);
+		
 		serial.read(buffer, len);
 		device.update(buffer, len);
 
