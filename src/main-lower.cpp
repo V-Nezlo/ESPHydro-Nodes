@@ -16,7 +16,8 @@
 #include <Crc8.hpp>
 
 Gpio latch(2, OUTPUT);
-SerialWrapper serial(115200, latch);
+Gpio led(5, OUTPUT);
+SerialWrapper serial(115200, latch, led);
 
 Gpio EC_Sence(A0, INPUT);
 Gpio EC_Gnd(A1, INPUT);
@@ -27,8 +28,6 @@ Gpio waterLev2(10, INPUT);
 Gpio waterLev3(9, INPUT);
 
 Gpio pumpPin(12, OUTPUT);
-Gpio led(5, OUTPUT);
-bool ledState = false;
 
 LowerSensors<7> sensorHandler(waterLev1, waterLev2, waterLev3, EC_Sence, EC_Gnd, EC_Pow);
 RsLower<SerialWrapper, Crc8, 128> device(serial, DeviceType::Lower, pumpPin, &sensorHandler);
@@ -62,9 +61,6 @@ void loop()
 
 		serial.read(buffer, len);
 		device.update(buffer, len);
-
-		ledState = !ledState;
-		led.setState(ledState);
 	}
 
 	const auto currentTime = TimeWrapper::milliseconds();

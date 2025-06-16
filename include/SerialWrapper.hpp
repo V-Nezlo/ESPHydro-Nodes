@@ -18,7 +18,10 @@
 
 class SerialWrapper {
 public:
-	SerialWrapper(uint32_t aSpeed, Gpio &aLatch) : speed{aSpeed}, latch{aLatch}
+	SerialWrapper(uint32_t aSpeed, Gpio &aLatch, Gpio &aIndic): 
+	speed{aSpeed}, 
+	latch{aLatch},
+	indic{aIndic}
 	{}
 
 	void init()
@@ -36,19 +39,22 @@ public:
 		return Serial.readBytes(aBuffer, aLength);
 	}
 
-	size_t write(const uint8_t *aData, size_t aLength)
+	size_t write(const void *aData, size_t aLength)
 	{
 		latch.set();
+		indic.set();
 		delay(20);
-		auto len = Serial.write(aData, aLength);
+		auto len = Serial.write(static_cast<const char *>(aData), aLength);
 		delay(20);
 		latch.reset();
+		indic.reset();
 		return len;
 	}
 
 private:
 	uint32_t speed;
 	Gpio &latch;
+	Gpio &indic;
 };
 
 #endif // INCLUDE_SERIALWRAPPER_HPP

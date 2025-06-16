@@ -41,8 +41,9 @@ public:
 		ecGnd{aEC_Gnd},
 		ecPow{aEC_Pow},
 
-		inversion{false},
+		inversion{true},
 		curSensor{},
+		expRunFilterValue{0.f},
 
 		lastCheckTime{0},
 		updateTime{200},
@@ -50,18 +51,23 @@ public:
 	{
 		aEC_Gnd.reset();
 		aEC_Pow.reset();
+
+		floatLev1.set();
+		floatLev2.set();
+		floatLev3.set();
 	}
 
-	void init()
+	bool init()
 	{
-		curSensor.begin();
-		curSensor.setCalibration_16V_400mA();
+		bool result = curSensor.begin();
 		tempSensor.setResolution(12);
+
+		return result;
 	}
 
 	void process()
 	{
-		uint32_t currentTime = TimeWrapper::milliseconds();
+		const uint32_t currentTime = TimeWrapper::milliseconds();
 
 		if (lastCheckTime + updateTime < currentTime) {
 			lastCheckTime = currentTime;
@@ -121,7 +127,9 @@ public:
 
 	bool checkPump()
 	{
-		const float current = curSensor.getCurrent_mA();
+		float current = curSensor.getCurrent_mA();
+		expRunFilterValue += (current - expRunFilterValue) * 0.2f;
+		current = expRunFilterValue;
 
 		if (current >= Options::Lower::kMaxCurrentToOvercurrent_mA) {
 			data.deviceFlags |= static_cast<uint8_t>(LowerFlags::LowerPumpOverCurrentFlag);
@@ -148,6 +156,7 @@ private:
 	bool inversion;
 
 	Adafruit_INA219 curSensor;
+	float expRunFilterValue;
 
 	uint32_t lastCheckTime;
 	const uint32_t updateTime;
