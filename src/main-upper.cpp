@@ -15,16 +15,14 @@
 #include <Arduino.h>
 
 Gpio latch(2, OUTPUT);
-SerialWrapper serial(115200, latch);
+Gpio led(10, OUTPUT);
+SerialWrapper serial(115200, latch, led);
 
 Gpio acSensePin(A0, INPUT);
 Gpio floatLevelPin(A1, INPUT);
 
 Gpio damPin(11, OUTPUT);
 Gpio lampPin(12, OUTPUT);
-
-Gpio led(10, OUTPUT);
-bool ledState = false;
 
 UpperSensors sensorHandler(floatLevelPin, acSensePin, false);
 RsUpper<SerialWrapper, Crc8, 128> device(serial, DeviceType::Upper, damPin, lampPin, &sensorHandler);
@@ -49,8 +47,5 @@ void loop()
 		
 		serial.read(buffer, len);
 		device.update(buffer, len);
-
-		ledState = !ledState;
-		led.setState(ledState);
 	}
 }

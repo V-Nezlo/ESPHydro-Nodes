@@ -28,7 +28,18 @@ public:
 	UpperTelemetry getSensorData() override
 	{
 		UpperTelemetry telem;
-		telem.swingLevelState = levInversion ? !floatLev.digitalRead() : floatLev.digitalRead();
+
+		uint16_t floatLevValue = floatLev.analogRead();
+		float floatLevVoltage = floatLevValue * 5.f / 1023.f;
+
+		if (floatLevVoltage > 4.f) {
+			telem.deviceFlags |= UpperFlags::UpperTopWaterLevelError;
+			telem.swingLevelState = false;
+		} else if (floatLevVoltage < 2.f) {
+			telem.swingLevelState = true;
+		} else {
+			telem.swingLevelState = false;
+		}
 
 		if (!acSense.digitalRead()) {
 			telem.deviceFlags |= UpperFlags::UpperPowerError;

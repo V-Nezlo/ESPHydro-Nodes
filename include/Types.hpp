@@ -29,8 +29,8 @@ enum LowerFlags : uint8_t {
 };
 
 enum UpperFlags : uint8_t {
-	UpperTopWaterLevelStuck = 0x01,
-	UpperPowerError = 0x02
+	UpperTopWaterLevelError = 0x01,
+	UpperPowerError         = 0x02,
 };
 
 enum class PumpState {
