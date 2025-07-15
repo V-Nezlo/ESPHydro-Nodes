@@ -28,22 +28,23 @@ public:
 	UpperTelemetry getSensorData() override
 	{
 		UpperTelemetry telem;
+		telem.deviceFlags = 0;
 
-		uint16_t floatLevValue = floatLev.analogRead();
-		float floatLevVoltage = floatLevValue * 5.f / 1023.f;
+		const uint16_t raw = floatLev.analogRead();
+		const float voltage = raw * 5.0f / 1023.0f;
 
-		if (floatLevVoltage > 4.f) {
+		if (voltage > 4.f) {
 			telem.deviceFlags |= UpperFlags::UpperTopWaterLevelError;
 			telem.swingLevelState = false;
-		} else if (floatLevVoltage < 2.f) {
+		} else if (voltage < 1.8f) {
 			telem.swingLevelState = true;
 		} else {
 			telem.swingLevelState = false;
 		}
 
-		if (!acSense.digitalRead()) {
-			telem.deviceFlags |= UpperFlags::UpperPowerError;
-		}
+		// if (!acSense.digitalRead()) {
+		// 	telem.deviceFlags |= UpperFlags::UpperPowerError;
+		// }
 
 		return telem;
 	}

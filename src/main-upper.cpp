@@ -18,8 +18,8 @@ Gpio latch(2, OUTPUT);
 Gpio led(10, OUTPUT);
 SerialWrapper serial(115200, latch, led);
 
-Gpio acSensePin(A0, INPUT);
-Gpio floatLevelPin(A1, INPUT);
+Gpio acSensePin(A1, INPUT);
+Gpio floatLevelPin(A0, INPUT);
 
 Gpio damPin(11, OUTPUT);
 Gpio lampPin(12, OUTPUT);
