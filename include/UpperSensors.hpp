@@ -35,11 +35,11 @@ public:
 
 		if (voltage > 4.f) {
 			telem.deviceFlags |= UpperFlags::UpperTopWaterLevelError;
-			telem.swingLevelState = false;
+			telem.swingLevelState = levInversion ? true : false;
 		} else if (voltage < 1.8f) {
-			telem.swingLevelState = true;
+			telem.swingLevelState = levInversion ? false : true;
 		} else {
-			telem.swingLevelState = false;
+			telem.swingLevelState = levInversion ? true : false;
 		}
 
 		// if (!acSense.digitalRead()) {

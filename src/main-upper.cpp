@@ -24,7 +24,7 @@ Gpio floatLevelPin(A0, INPUT);
 Gpio damPin(11, OUTPUT);
 Gpio lampPin(12, OUTPUT);
 
-UpperSensors sensorHandler(floatLevelPin, acSensePin, false);
+UpperSensors sensorHandler(floatLevelPin, acSensePin, true);
 RsUpper<SerialWrapper, Crc8, 128> device(serial, DeviceType::Upper, damPin, lampPin, &sensorHandler);
 
 void setup() 
