@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    static constexpr float kCoeff{0.01f};
+    static constexpr float kCoeff{0.5f};
 };
 
 #endif // INCLUDE_PPMFILTER_HPP_

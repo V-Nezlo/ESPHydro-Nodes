@@ -166,44 +166,25 @@ private:
 
 	uint8_t getWaterLevel()
 	{
-		const bool water1State = inversion ? !floatLev1.digitalRead() : floatLev1.digitalRead();
-		const bool water2State = inversion ? !floatLev2.digitalRead() : floatLev2.digitalRead();
-		const bool water3State = inversion ? !floatLev3.digitalRead() : floatLev3.digitalRead();
+		const bool w1 = inversion ? !floatLev1.digitalRead() : floatLev1.digitalRead();
+		const bool w2 = inversion ? !floatLev2.digitalRead() : floatLev2.digitalRead();
+		const bool w3 = inversion ? !floatLev3.digitalRead() : floatLev3.digitalRead();
 
-		static constexpr uint8_t kLevel3Procent{80};
-		static constexpr uint8_t kLevel2Procent{60};
-		static constexpr uint8_t kLevel1Procent{40};
-		static constexpr uint8_t kLevel0Procent{0};
-		static constexpr uint8_t kFallbackProcent{20};
+		if (!w1 && !w2 && !w3) return 0;
+		if (w1 && !w2 && !w3)  return 33;
+		if (w1 && w2 && !w3)   return 66;
+		if (w1 && w2 && w3)    return 100;
 
-		uint8_t procent = kLevel0Procent;
-
-		if (water3State && !(water2State && water1State)) {
-			data.deviceFlags |= LowerWaterLevelError;
-			procent = kFallbackProcent;
-		} else if (water2State && !water1State) {
-			data.deviceFlags |= LowerWaterLevelError;
-			procent = kFallbackProcent;
-		} else {
-			data.deviceFlags &= ~LowerWaterLevelError;
-
-			if (water3State && water2State && water1State) {
-				procent = kLevel3Procent;
-			} else if (water2State && water1State) {
-				procent = kLevel2Procent;
-			} else if (water1State) {
-				procent = kLevel1Procent;
-			} else {
-				procent = kLevel0Procent;
-			}
-		}
-
-		return procent;
+		// Если сработал верхний или средний без нижнего — ошибка
+		data.deviceFlags |= LowerFlags::LowerWaterLevelError;
+		return 0;
 	}
 
 	uint16_t getPPM(float aCurrentTemp)
 	{
 		ecPow.set();
+		ecSence.analogRead();
+		ecSence.analogRead();
 		ecSence.analogRead();
 		const float vRaw = ecSence.analogRead();
 		ecPow.reset();

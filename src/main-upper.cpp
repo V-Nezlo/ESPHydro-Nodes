@@ -31,10 +31,6 @@ void setup()
 {
 	latch.reset();
 	serial.init();
-
-	led.set();
-	delay(500);
-	led.reset();
 }
 
 void loop() 

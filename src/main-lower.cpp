@@ -17,11 +17,12 @@
 
 Gpio latch(2, OUTPUT);
 Gpio led(5, OUTPUT);
+Gpio onBoardLed(13, OUTPUT);
 SerialWrapper serial(115200, latch, led);
 
-Gpio EC_Sence(A0, INPUT);
-Gpio EC_Gnd(A1, INPUT);
-Gpio EC_Pow(A2, INPUT);
+Gpio EC_Sence(A1, INPUT);
+Gpio EC_Gnd(A0, OUTPUT);
+Gpio EC_Pow(A2, OUTPUT);
 
 Gpio waterLev1(11, INPUT);
 Gpio waterLev2(10, INPUT);
@@ -45,14 +46,11 @@ void setup()
 	delay(100);
 	sensorHandler.checkPump();
 	pumpPin.reset();
-	
-	led.set();
-	delay(500);
-	led.reset();
 }
 
 void loop() 
 {
+	#ifndef DEBUG
 	if (serial.bytesAvaillable()) {
 		size_t len = serial.bytesAvaillable();
 		uint8_t buffer[64];
@@ -62,10 +60,25 @@ void loop()
 		serial.read(buffer, len);
 		device.update(buffer, len);
 	}
+	#else
+	const auto telem = sensorHandler.getSensorData();
+	char buffer[80];
+
+	size_t size = sprintf(buffer, "Level: %u, PPM: %u, Temp: %u \r\n", telem.waterLevelPerc, telem.waterPPM, telem.waterTemperature10);
+	if (size > 0) {
+		serial.write(buffer, size);
+	}
+
+	delay(100);
+	#endif
 
 	const auto currentTime = TimeWrapper::milliseconds();
 	if (currentTime > sensorLastUpdate + kSensorsUpdateTimeMs) {
 		sensorLastUpdate = currentTime;
 		sensorHandler.process();
+
+		static bool ledState = false;
+		ledState = !ledState;
+		onBoardLed.setState(ledState);
 	}
 }
