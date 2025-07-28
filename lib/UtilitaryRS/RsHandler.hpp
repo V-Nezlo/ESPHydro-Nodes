@@ -184,7 +184,9 @@ public:
 			return false;
 		}
 
-		uint8_t message[128];
+		if (aSize + 2 + sizeof(AnwMessage) > ParserSize) {
+			return 0;
+		}
 
 		AnwMessage header;
 		header.transmitUID = nodeUID;
@@ -192,13 +194,17 @@ public:
 		header.messageType = MessageType::Answer;
 		header.payload.dataSize = aSize;
 		header.payload.request = aRequest;
-		// Add answer header
-		memcpy(message, &header, sizeof(header));
-		// Add answer payload through memcpy
-		memcpy(&message[sizeof(AnwMessage)], aData, aSize);
 
-		size_t length = parser.create(messageBuffer, &message, sizeof(AnwMessage) + aSize);
-		interface.write(messageBuffer, length);
+		uint8_t *payloadStart = messageBuffer + 1;
+		// Add answer header
+		memcpy(payloadStart, &header, sizeof(header));
+		// Add answer payload through memcpy
+		memcpy(payloadStart + sizeof(header), aData, aSize);
+
+		const size_t fullSize = sizeof(header) + aSize;
+		const size_t len = parser.create(messageBuffer, payloadStart, fullSize);
+
+		interface.write(messageBuffer, len);
 		return true;
 	}
 
