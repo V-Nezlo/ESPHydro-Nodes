@@ -16,6 +16,7 @@
 
 Gpio latch(2, OUTPUT);
 Gpio led(10, OUTPUT);
+Gpio ledInt(13, OUTPUT);
 SerialWrapper serial(115200, latch, led);
 
 Gpio acSensePin(A1, INPUT);
@@ -26,6 +27,9 @@ Gpio lampPin(12, OUTPUT);
 
 UpperSensors sensorHandler(floatLevelPin, acSensePin, true);
 RsUpper<SerialWrapper, Crc8, 128> device(serial, DeviceType::Upper, damPin, lampPin, &sensorHandler);
+
+uint32_t lastUpdateTime{0};
+bool ledState{false};
 
 void setup() 
 {
@@ -43,5 +47,13 @@ void loop()
 		
 		serial.read(buffer, len);
 		device.update(buffer, len);
+	}
+
+	const auto currentTime = TimeWrapper::milliseconds();
+	if (currentTime > lastUpdateTime + 500) {
+		lastUpdateTime = currentTime;
+
+		ledState = !ledState;
+		ledInt.setState(ledState);
 	}
 }

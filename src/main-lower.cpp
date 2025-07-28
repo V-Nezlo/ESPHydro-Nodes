@@ -50,7 +50,6 @@ void setup()
 
 void loop() 
 {
-	#ifndef DEBUG
 	if (serial.bytesAvaillable()) {
 		size_t len = serial.bytesAvaillable();
 		uint8_t buffer[64];
@@ -60,17 +59,6 @@ void loop()
 		serial.read(buffer, len);
 		device.update(buffer, len);
 	}
-	#else
-	const auto telem = sensorHandler.getSensorData();
-	char buffer[80];
-
-	size_t size = sprintf(buffer, "Level: %u, PPM: %u, Temp: %u \r\n", telem.waterLevelPerc, telem.waterPPM, telem.waterTemperature10);
-	if (size > 0) {
-		serial.write(buffer, size);
-	}
-
-	delay(100);
-	#endif
 
 	const auto currentTime = TimeWrapper::milliseconds();
 	if (currentTime > sensorLastUpdate + kSensorsUpdateTimeMs) {
