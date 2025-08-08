@@ -43,9 +43,9 @@ public:
 	{
 		latch.set();
 		indic.set();
-		delay(20);
+		delay(5);
 		auto len = Serial.write(static_cast<const char *>(aData), aLength);
-		delay(20);
+		delay(5);
 		latch.reset();
 		indic.reset();
 		return len;
