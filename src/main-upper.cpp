@@ -35,6 +35,8 @@ void setup()
 {
 	latch.reset();
 	serial.init();
+
+	wdt_enable(WDTO_4S);
 }
 
 void loop() 
