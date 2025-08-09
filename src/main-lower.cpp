@@ -13,6 +13,7 @@
 #include "RsLower.hpp"
 
 #include <Arduino.h>
+#include <avr/wdt.h>
 #include <Crc8.hpp>
 
 Gpio latch(2, OUTPUT);
@@ -46,6 +47,8 @@ void setup()
 	delay(100);
 	sensorHandler.checkPump();
 	pumpPin.reset();
+
+	wdt_enable(WDTO_4S);
 }
 
 void loop() 

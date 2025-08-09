@@ -14,7 +14,7 @@
 #include <Arduino.h>
 #include <string.h>
 #include <stdint.h>
-
+#include <avr/wdt.h>
 
 class SerialWrapper {
 public:
@@ -48,6 +48,9 @@ public:
 		delay(5);
 		latch.reset();
 		indic.reset();
+		// Critical
+		wdt_reset();
+
 		return len;
 	}
 
