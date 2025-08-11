@@ -45,6 +45,7 @@ public:
 				pump.setState(newState);
 
 				FlagStorage::instance().pumpState = newState;
+				sensorHandler->setTelemPumpState(newState ? PumpState::PumpOn : PumpState::PumpOff);
 				return 1;
 				};
 
@@ -75,8 +76,7 @@ public:
 			case static_cast<uint8_t>(Requests::RequestTelemetry): {
 				// Если длина запроса не совпадает - вернется ACK с кодом 0
 
-				LowerTelemetry telem = sensorHandler->getSensorData();
-				telem.pumpState = pumpState;
+				const LowerTelemetry telem = sensorHandler->getSensorData();
 
 				return BaseType::sendAnswer(aTransmitUID, aRequest, aRequestedDataSize, &telem, sizeof(telem));
 			} break;

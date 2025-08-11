@@ -12,9 +12,9 @@
 namespace Options {
 
 namespace Lower {
-    static constexpr float kMaxCurrentToOvercurrent_mA{1000.f};
-    static constexpr float kMinCurrentToNoLoad{50.f};
-    static constexpr uint8_t kMinWaterLevelForError{10};
+	static constexpr float kMaxCurrentToOvercurrent_mA{1000.f};
+	static constexpr float kMinCurrentToNoLoad{50.f};
+	static constexpr uint8_t kMinWaterLevelForError{10};
 } // namespace Lower
 
 } // namespace Options

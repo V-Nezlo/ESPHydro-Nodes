@@ -64,7 +64,7 @@ void loop()
 	}
 
 	const auto currentTime = TimeWrapper::milliseconds();
-	if (currentTime > sensorLastUpdate + kSensorsUpdateTimeMs) {
+	if (currentTime - sensorLastUpdate >= kSensorsUpdateTimeMs) {
 		sensorLastUpdate = currentTime;
 		sensorHandler.process();
 
