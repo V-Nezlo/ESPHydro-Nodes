@@ -33,6 +33,13 @@ enum UpperFlags : uint8_t {
 	UpperPowerError         = 0x02,
 };
 
+enum class PumpChecker : uint8_t {
+	Disabled,
+	Normal,
+	NoCurrent,
+	Overcurrent
+};
+
 enum class PumpState {
 	PumpOn = 0,
 	PumpOff = 1,

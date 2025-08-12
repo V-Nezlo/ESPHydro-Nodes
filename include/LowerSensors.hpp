@@ -47,7 +47,10 @@ public:
 
 		lastCheckTime{0},
 		updateTime{200},
-		tempSensor{}
+		tempSensor{},
+		data{},
+		pumpState{PumpState::PumpOff},
+		pumpCheckTimestamp{0}
 	{
 		aEC_Gnd.reset();
 		aEC_Pow.reset();
@@ -65,18 +68,37 @@ public:
 		return result;
 	}
 
+	void setTelemPumpState(PumpState aState) override
+	{
+		pumpState = aState;
+
+		// Отложим запуск проверки насоса чтобы фильтр успел накопиться
+		pumpCheckTimestamp = TimeWrapper::milliseconds();
+	}
+
 	void process()
 	{
 		const uint32_t currentTime = TimeWrapper::milliseconds();
 
-		if (lastCheckTime + updateTime < currentTime) {
+		if (currentTime - lastCheckTime >= updateTime) {
 			lastCheckTime = currentTime;
 
 			// Проверим что температурный сенсор отвечает
 			const bool tempReadResult = tempSensor.readTemp();
+			// Проверяем состояние насоса постоянно
+			const auto pumpCheckerState = checkPump();
 
-			if (FlagStorage::instance().pumpState) {
-				checkPump();
+			if (currentTime - pumpCheckTimestamp >= 1000) {
+				pumpCheckTimestamp = currentTime;
+
+				if (pumpCheckerState == PumpChecker::NoCurrent) {
+					data.deviceFlags |= LowerFlags::LowerPumpLowCurrentFlag;
+				} else if (pumpCheckerState == PumpChecker::Overcurrent) {
+					data.deviceFlags |= LowerFlags::LowerPumpOverCurrentFlag;
+				} else {
+					data.deviceFlags &= ~LowerFlags::LowerPumpOverCurrentFlag;
+					data.deviceFlags &= ~LowerFlags::LowerPumpLowCurrentFlag;
+				}
 			}
 
 			// Запрос температуры и установка-сброс флагов ошибки
@@ -92,7 +114,6 @@ public:
 					data.waterPPM = 0;
 					data.deviceFlags |= LowerFlags::LowerPPMSensorErrorFlag;
 				}
-
 				data.deviceFlags &= ~LowerFlags::LowerTempSensorErrorFlag;
 			} else {
 				data.deviceFlags |= LowerFlags::LowerTempSensorErrorFlag;
@@ -125,23 +146,25 @@ public:
 		return data;
 	}
 
-	bool checkPump()
+	PumpChecker checkPump()
 	{
 		float current = curSensor.getCurrent_mA();
 		expRunFilterValue += (current - expRunFilterValue) * 0.2f;
 		current = expRunFilterValue;
 
-		if (current >= Options::Lower::kMaxCurrentToOvercurrent_mA) {
-			data.deviceFlags |= static_cast<uint8_t>(LowerFlags::LowerPumpOverCurrentFlag);
-			return false;
-		} else if (current <= Options::Lower::kMinCurrentToNoLoad) {
-			data.deviceFlags |= static_cast<uint8_t>(LowerFlags::LowerPumpLowCurrentFlag);
-			return false;
-		} else {
-			data.deviceFlags &= ~static_cast<uint8_t>(LowerFlags::LowerPumpOverCurrentFlag);
-			data.deviceFlags &= ~static_cast<uint8_t>(LowerFlags::LowerPumpLowCurrentFlag);
-			return true;
+		if (!FlagStorage::instance().pumpState) {
+			return PumpChecker::Disabled;
 		}
+
+		if (current >= Options::Lower::kMaxCurrentToOvercurrent_mA) {
+			return PumpChecker::Overcurrent;
+		}
+
+		if (current <= Options::Lower::kMinCurrentToNoLoad) {
+			return PumpChecker::NoCurrent;
+		}
+
+		return PumpChecker::Normal;
 	}
 
 private:
@@ -163,6 +186,9 @@ private:
 	MicroDS18B20<DSPin> tempSensor;
 
 	LowerTelemetry data;
+
+	PumpState pumpState;
+	uint32_t pumpCheckTimestamp;
 
 	uint8_t getWaterLevel()
 	{

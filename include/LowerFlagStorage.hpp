@@ -11,20 +11,20 @@
 
 class FlagStorage {
 public:
-    static FlagStorage &instance()
-    {
-        static FlagStorage impl;
-        return impl;
-    }
+	static FlagStorage &instance()
+	{
+		static FlagStorage impl;
+		return impl;
+	}
 
-    bool pumpState;
+	bool pumpState;
 
 private:
-    FlagStorage():
-        pumpState{false}
-    {
+	FlagStorage():
+		pumpState{false}
+	{
 
-    }
+	}
 };
 
 #endif // INCLUDE_LOWERFLAGSTORAGE_HPP_

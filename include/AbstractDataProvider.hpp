@@ -15,6 +15,7 @@
 class AbstractLowerDataProvider {
 public:
 	virtual LowerTelemetry getSensorData() = 0;
+	virtual void setTelemPumpState(PumpState aState) = 0;
 };
 
 class AbstractUpperDataProvider {

@@ -52,7 +52,7 @@ void loop()
 	}
 
 	const auto currentTime = TimeWrapper::milliseconds();
-	if (currentTime > lastUpdateTime + 500) {
+	if (currentTime - lastUpdateTime >= 500) {
 		lastUpdateTime = currentTime;
 
 		ledState = !ledState;
