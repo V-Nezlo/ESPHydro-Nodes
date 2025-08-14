@@ -96,8 +96,8 @@ public:
 				} else if (pumpCheckerState == PumpChecker::Overcurrent) {
 					data.deviceFlags |= LowerFlags::LowerPumpOverCurrentFlag;
 				} else {
-					data.deviceFlags &= ~LowerFlags::LowerPumpOverCurrentFlag;
-					data.deviceFlags &= ~LowerFlags::LowerPumpLowCurrentFlag;
+					// data.deviceFlags &= ~LowerFlags::LowerPumpOverCurrentFlag;
+					// data.deviceFlags &= ~LowerFlags::LowerPumpLowCurrentFlag;
 				}
 			}
 
@@ -109,12 +109,12 @@ public:
 
 				if (PpmFilter::isValid(ppm)) {
 					data.waterPPM = ppm;
-					data.deviceFlags &= ~LowerFlags::LowerPPMSensorErrorFlag;
+					// data.deviceFlags &= ~LowerFlags::LowerPPMSensorErrorFlag;
 				} else {
 					data.waterPPM = 0;
 					data.deviceFlags |= LowerFlags::LowerPPMSensorErrorFlag;
 				}
-				data.deviceFlags &= ~LowerFlags::LowerTempSensorErrorFlag;
+				// data.deviceFlags &= ~LowerFlags::LowerTempSensorErrorFlag;
 			} else {
 				data.deviceFlags |= LowerFlags::LowerTempSensorErrorFlag;
 				data.waterTemperature10 = 0;
@@ -122,7 +122,7 @@ public:
 
 			data.waterLevelPerc = getWaterLevel();
 			if (data.waterLevelPerc > Options::Lower::kMinWaterLevelForError) {
-				data.deviceFlags &= ~LowerFlags::LowerNoWaterFlag;
+				// data.deviceFlags &= ~LowerFlags::LowerNoWaterFlag;
 			} else {
 				data.deviceFlags |= LowerFlags::LowerNoWaterFlag;
 			}
@@ -130,7 +130,7 @@ public:
 			uint8_t ph10 = getPH();
 			if (data.waterPH10 != 0) {
 				data.waterPH10 = ph10;
-				data.deviceFlags &= ~LowerFlags::LowerPHSensorErrorFlag;
+				// data.deviceFlags &= ~LowerFlags::LowerPHSensorErrorFlag;
 			} else {
 				data.waterPH10 = 0;
 				data.deviceFlags |= LowerFlags::LowerPHSensorErrorFlag;
