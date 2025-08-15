@@ -76,8 +76,8 @@ public:
 			case static_cast<uint8_t>(Requests::RequestTelemetry): {
 				// Если длина запроса не совпадает - вернется ACK с кодом 0
 
-				const LowerTelemetry telem = sensorHandler->getSensorData();
-
+				LowerTelemetry telem = sensorHandler->getSensorData();
+				telem.pumpState = pumpState;
 				return BaseType::sendAnswer(aTransmitUID, aRequest, aRequestedDataSize, &telem, sizeof(telem));
 			} break;
 			default:
