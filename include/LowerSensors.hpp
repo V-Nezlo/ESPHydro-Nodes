@@ -92,12 +92,21 @@ public:
 				pumpCheckTimestamp = currentTime;
 
 				if (pumpCheckerState == PumpChecker::NoCurrent) {
-					data.deviceFlags |= LowerFlags::LowerPumpLowCurrentFlag;
-				} else if (pumpCheckerState == PumpChecker::Overcurrent) {
-					data.deviceFlags |= LowerFlags::LowerPumpOverCurrentFlag;
+					if (++errCnt.pumpLowErrorCount >= kErrorThreshold) {
+						data.deviceFlags |= LowerFlags::LowerPumpLowCurrentFlag;
+					}
 				} else {
-					data.deviceFlags &= ~LowerFlags::LowerPumpOverCurrentFlag;
+					errCnt.pumpLowErrorCount = 0;
 					data.deviceFlags &= ~LowerFlags::LowerPumpLowCurrentFlag;
+				}
+
+				if (pumpCheckerState == PumpChecker::Overcurrent) {
+					if (++errCnt.pumpOverErrorCount >= kErrorThreshold) {
+						data.deviceFlags |= LowerFlags::LowerPumpOverCurrentFlag;
+					}
+				} else {
+					errCnt.pumpOverErrorCount = 0;
+					data.deviceFlags &= ~LowerFlags::LowerPumpOverCurrentFlag;
 				}
 			}
 
@@ -109,15 +118,22 @@ public:
 
 				if (PpmFilter::isValid(ppm)) {
 					data.waterPPM = ppm;
+					errCnt.ppmErrorCount = 0;
 					data.deviceFlags &= ~LowerFlags::LowerPPMSensorErrorFlag;
 				} else {
-					data.waterPPM = 0;
-					data.deviceFlags |= LowerFlags::LowerPPMSensorErrorFlag;
+					if (++errCnt.ppmErrorCount >= kErrorThreshold) {
+						data.waterPPM = 0;
+						data.deviceFlags |= LowerFlags::LowerPPMSensorErrorFlag;
+					}
 				}
+
+				errCnt.tempErrorCount = 0;
 				data.deviceFlags &= ~LowerFlags::LowerTempSensorErrorFlag;
 			} else {
-				data.deviceFlags |= LowerFlags::LowerTempSensorErrorFlag;
-				data.waterTemperature10 = 0;
+				if (++errCnt.tempErrorCount >= kErrorThreshold) {
+					data.deviceFlags |= LowerFlags::LowerTempSensorErrorFlag;
+					data.waterTemperature10 = 0;
+				}
 			}
 
 			data.waterLevelPerc = getWaterLevel();
@@ -128,7 +144,7 @@ public:
 			}
 
 			uint8_t ph10 = getPH();
-			if (data.waterPH10 != 0) {
+			if (ph10 != 0) {
 				data.waterPH10 = ph10;
 				data.deviceFlags &= ~LowerFlags::LowerPHSensorErrorFlag;
 			} else {
@@ -189,6 +205,15 @@ private:
 
 	PumpState pumpState;
 	uint32_t pumpCheckTimestamp;
+
+	struct ErrorCounters {
+		uint8_t tempErrorCount = 0;
+		uint8_t pumpLowErrorCount = 0;
+		uint8_t pumpOverErrorCount = 0;
+		uint8_t ppmErrorCount = 0;
+	} errCnt;
+
+	static constexpr uint8_t kErrorThreshold = 5; // количество повторов до установки флага
 
 	uint8_t getWaterLevel()
 	{
