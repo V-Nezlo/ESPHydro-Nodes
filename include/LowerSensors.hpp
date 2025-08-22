@@ -221,14 +221,31 @@ private:
 		const bool w2 = inversion ? !floatLev2.digitalRead() : floatLev2.digitalRead();
 		const bool w3 = inversion ? !floatLev3.digitalRead() : floatLev3.digitalRead();
 
-		if (!w1 && !w2 && !w3) return 0;
-		if (w1 && !w2 && !w3)  return 33;
-		if (w1 && w2 && !w3)   return 66;
-		if (w1 && w2 && w3)    return 100;
-
-		// Если сработал верхний или средний без нижнего — ошибка
-		data.deviceFlags |= LowerFlags::LowerWaterLevelError;
-		return 0;
+		if (!w1 && !w2 && !w3) {
+			data.deviceFlags &= ~LowerFlags::LowerWaterLevelError;
+			return 0;
+		} else if (w1 && !w2 && !w3) {
+			data.deviceFlags &= ~LowerFlags::LowerWaterLevelError;
+			return 33;
+		} else if (w1 && w2 && !w3) {
+			data.deviceFlags &= ~LowerFlags::LowerWaterLevelError;
+			return 66;
+		} else if (w1 && w2 && w3) {
+			data.deviceFlags &= ~LowerFlags::LowerWaterLevelError;
+			return 100;
+		} else if (w1) {
+			data.deviceFlags |= LowerFlags::LowerWaterLevelError;
+			return 33;
+		} else if (w2) {
+			data.deviceFlags |= LowerFlags::LowerWaterLevelError;
+			return 66;
+		} else if (w3) {
+			data.deviceFlags |= LowerFlags::LowerWaterLevelError;
+			return 100;
+		} else {
+			data.deviceFlags |= LowerFlags::LowerWaterLevelError;
+			return 0;
+		}
 	}
 
 	uint16_t getPPM(float aCurrentTemp)
